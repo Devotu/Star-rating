@@ -1,0 +1,100 @@
+<!-- Defines element markup -->
+<template>
+    <style>
+        .star {
+            fill: yellow;
+            height: auto;
+            width: 20%;
+            stroke-width: 10;
+            stroke: black;
+        }
+    </style>
+
+    <svg style="display: none">
+        <symbol id="star" viewbox="0 0 262 262">
+            <path d="M131 12 L162 95 L250 95 L181 154 L212 249 L131 190 L50 249 L81 154 L12 95 L100 95 Z" />
+        </symbol>
+    </svg>
+
+    <div>
+        <label></label>
+    </div>
+    <div>
+        <svg class="star">
+            <use xlink:href="#star" />
+        </svg>
+        <svg class="star" style="fill: none;">
+            <use xlink:href="#star" />
+        </svg>
+        <svg class="star">
+            <use xlink:href="#star" />
+        </svg>
+        <svg class="star" style="fill: none;">
+            <use xlink:href="#star" />
+        </svg>
+        <svg class="star">
+            <use xlink:href="#star" />
+        </svg>
+    </div>
+</template>
+
+<script>
+    (function (window, document, undefined) {
+
+        // Refers to the "importer", which is index.html
+        var thatDoc = document;
+
+        // Refers to the "importee", which is src/hello-world.html
+        var thisDoc = (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
+
+        // Gets content from <template>
+        var template = thisDoc.querySelector('template').content;
+
+        // Creates an object based in the HTML Element prototype
+        var MyElementProto = Object.create(HTMLElement.prototype);
+
+        // Creates the "who" attribute and sets a default value
+        MyElementProto.starsTitle = 'Stars';
+
+        // Fires when an instance of the element is created
+        MyElementProto.createdCallback = function () {
+            // Creates the shadow root
+            var shadowRoot = this.createShadowRoot();
+
+            // Adds a template clone into shadow root
+            var clone = thatDoc.importNode(template, true);
+            shadowRoot.appendChild(clone);
+
+            // Caches <strong> DOM query
+            this.label = shadowRoot.querySelector('label');
+
+            // Attributes //
+            // Checks if the "who" attribute has been overwritten
+            if (this.hasAttribute('starsTitle')) {
+                var starsTitle = this.getAttribute('starsTitle');
+                this.setStarsTitle(starsTitle);
+            }
+            else {
+                this.setStarsTitle(this.starsTitle);
+            }
+        };
+
+        // Fires when an attribute was added, removed, or updated
+        MyElementProto.attributeChangedCallback = function (attr, oldVal, newVal) {
+            if (attr === 'starsTitle') {
+                this.setStarsTitle(newVal);
+            }
+        };
+
+        MyElementProto.setStarsTitle = function (val) {
+            this.starsTitle = val;
+            // Sets "who" value into <label>
+            this.label.textContent = this.starsTitle;
+        };
+
+        // Registers <hello-world> in the main document
+        window.MyElement = thatDoc.registerElement('star-rating', {
+            prototype: MyElementProto
+        });
+    })(window, document);
+</script>
